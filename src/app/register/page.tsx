@@ -1,63 +1,67 @@
 "use client";
 
 import axios from "axios";
-import { useState, FormEvent, ChangeEvent } from "react";
+import React, { useState, FormEvent, ChangeEvent } from "react";
 
-interface AuthResponse {
-  jwt: string;
-  user: {
-    id: number;
-    username: string;
-    email: string;
-  };
-  message?: string;
-}
-
-export default function Home() {
+export default function Register() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post<AuthResponse>(
-        "http://localhost:1337/api/auth/local",
+      const response = await axios.post(
+        "http://localhost:1337/api/auth/local/register",
         {
-          identifier: email,
+          username: username,
+          email: email,
           password: password,
         }
       );
 
       if (response.data.jwt) {
-        // The user is successfully authenticated
+        // The user is successfully registered
         localStorage.setItem("jwt", response.data.jwt);
         localStorage.setItem("user", JSON.stringify(response.data.user));
         // Redirect user to dashboard or another protected route
       } else {
-        console.error("Authentication failed:", response.data.message);
+        console.error("Registration failed:", response.data.message);
       }
     } catch (error) {
       if (error instanceof Error) {
-        console.error("Error during authentication:", error.message);
+        console.error("Error during registration:", error.message);
       } else {
-        console.error("An unknown error occurred during authentication.");
+        console.error("An unknown error occurred during registration.");
       }
     }
-  };
-
-  const handleInputChange = (
-    e: ChangeEvent<HTMLInputElement>,
-    setter: React.Dispatch<React.SetStateAction<string>>
-  ) => {
-    setter(e.target.value);
   };
 
   return (
     <main className="h-screen bg-gray-100 flex justify-center items-center">
       <div className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h1 className="text-2xl font-bold mb-4">Login</h1>
+        <h1 className="text-2xl font-bold mb-4">Register</h1>
         <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label
+              className="block text-sm font-medium text-gray-600 mb-2"
+              htmlFor="username"
+            >
+              Username
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              className="p-2 w-full border rounded-md"
+              value={username}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setUsername(e.target.value)
+              }
+              required
+            />
+          </div>
           <div className="mb-4">
             <label
               className="block text-sm font-medium text-gray-600 mb-2"
@@ -71,7 +75,9 @@ export default function Home() {
               name="email"
               className="p-2 w-full border rounded-md"
               value={email}
-              onChange={(e) => handleInputChange(e, setEmail)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setEmail(e.target.value)
+              }
               required
             />
           </div>
@@ -88,7 +94,9 @@ export default function Home() {
               name="password"
               className="p-2 w-full border rounded-md"
               value={password}
-              onChange={(e) => handleInputChange(e, setPassword)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setPassword(e.target.value)
+              }
               required
             />
           </div>
@@ -96,7 +104,7 @@ export default function Home() {
             type="submit"
             className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
           >
-            Login
+            Register
           </button>
         </form>
       </div>
